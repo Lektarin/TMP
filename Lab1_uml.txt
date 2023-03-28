@@ -1,0 +1,64 @@
+1. Диаграмма вариантов использования
+@startuml
+left to right direction
+actor User
+rectangle BankATM {
+  User -> (Снять наличные)
+  User -> (Получить справку о балансе)
+}
+@enduml
+2. Диаграмма классов
+@startuml
+package BankATM {
+  class BankAccount {
+    - accountNumber : int
+    - balance : int
+    + BankAccount(accountNumber:int, balance:int)
+    + getAccountNumber() : int
+    + getBalance() : int
+    + withdraw(amount:int) : boolean
+  }
+
+  class CashDispenser {
+    - cashOnHand : int
+    + CashDispenser()
+    + dispenseCash(amount:int) : boolean
+  }
+
+  class ReceiptPrinter {
+    + ReceiptPrinter()
+    + printReceipt(accountNumber:int, balance:int) : void
+  }
+
+  class BankATM {
+    - bankAccount : BankAccount
+    - cashDispenser : CashDispenser
+    - receiptPrinter : ReceiptPrinter
+    + BankATM(bankAccount:BankAccount, cashDispenser:CashDispenser, receiptPrinter:ReceiptPrinter)
+    + withdraw(amount:int) : void
+    + getBalance() : int
+  }
+
+  BankAccount --> BankATM
+  CashDispenser --> BankATM
+  ReceiptPrinter --> BankATM
+}
+@enduml
+
+3. Диаграмма последовательности
+@startuml
+actor Customer
+participant BankATM
+database BankAccount
+BankATM -> BankAccount: CheckAccount()
+BankATM -> Customer: "Insert ATM card and enter PIN"
+activate BankAccount
+Customer -> BankATM: "Select Withdrawal option"
+BankATM -> BankAccount: Debit(AccountNumber, Amount)
+BankAccount -> BankATM: "Dispense cash"
+deactivate BankAccount
+BankATM -> Customer: "Take cash and card"
+Customer -> BankATM: "Select Balance Inquiry option"
+BankATM -> BankAccount: CheckBalance(AccountNumber)
+BankAccount -> BankATM: "Print balance on receipt"
+@enduml
